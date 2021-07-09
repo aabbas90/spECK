@@ -8,6 +8,8 @@
 
 #define VERIFICATION_TEXT
 
+using namespace spECKWrapper;
+
 template <typename DataType>
 __global__ void d_compare(int in_rows, int in_cols, const uint32_t* __restrict reference_offset, const uint32_t* __restrict reference_indices, const DataType* __restrict reference_values,
 	const uint32_t* __restrict compare_offset, const uint32_t* __restrict compare_indices, const DataType* __restrict compare_values, bool compare_data, double epsilon, uint32_t* verification)

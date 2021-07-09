@@ -37,6 +37,7 @@ namespace {
 	};
 }
 
+namespace spECKWrapper {
 template<typename T>
 void COO<T>::alloc(size_t r, size_t c, size_t n)
 {
@@ -208,3 +209,4 @@ template COO<double> loadMTX(const char * file);
 
 template void spmv(DenseVector<float>& res, const COO<float>& m, const DenseVector<float>& v, bool transpose);
 template void spmv(DenseVector<double>& res, const COO<double>& m, const DenseVector<double>& v, bool transpose);
+} // namespace spECKWrapper

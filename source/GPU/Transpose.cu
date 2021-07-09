@@ -7,6 +7,7 @@
 #include "Transpose.h"
 #include "common.h"
 
+using namespace spECKWrapper;
 __global__ void d_calulateTransposeDistribution(int in_rows, int in_cols,
 	const uint32_t* __restrict input_offset, const uint32_t* __restrict input_indices, uint32_t* output_offset)
 {

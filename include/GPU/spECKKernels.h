@@ -6,6 +6,8 @@
 #include "Config.h"
 #include "GPU/BlockRange.cuh"
 
+using namespace spECKWrapper;
+
 class spECKKernels
 {
 public:

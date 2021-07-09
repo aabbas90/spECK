@@ -1,6 +1,8 @@
 #pragma once
 
-#include "dCSR.h"
+#include "dCSR_sp.h"
+
+using namespace spECKWrapper;
 
 namespace spECK {
 	template <typename DataType>

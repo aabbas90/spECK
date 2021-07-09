@@ -80,7 +80,7 @@ SET(SPECKHEADERS
 	include/INIReader.h
 	include/COO.h 
 	include/CSR.h 
-	include/dCSR.h 
+	include/dCSR_sp.h 
 	include/HashMap.cuh 
 	include/meta_utils.h 
 	include/multi_arch_build.h 
@@ -112,7 +112,7 @@ add_library(spECKLib
 				source/GPU/Compare.cu
 				source/COO.cpp
 				source/CSR.cpp
-				source/dCSR.cpp
+				source/dCSR_sp.cpp
 				source/Config.cpp
 				source/GPU/Multiply.cu
 				${SPECKHEADERS}

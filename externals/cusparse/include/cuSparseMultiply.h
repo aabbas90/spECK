@@ -1,9 +1,11 @@
 #pragma once
 
-#include "dCSR.h"
+#include "dCSR_sp.h"
 #include <cusparse.h>
 #include <iostream>
 #include <string>
+
+using namespace spECKWrapper;
 
 namespace cuSPARSE {
 

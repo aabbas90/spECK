@@ -5,6 +5,8 @@
 #include <math.h>
 #include <cstring>
 
+namespace spECKWrapper {
+
 template<typename T>
 struct COO;
 
@@ -101,3 +103,8 @@ void spmv(DenseVector<T>& res, const CSR<T>& m, const DenseVector<T>& v, bool tr
 
 template<typename T>
 void convert(CSR<T>& res, const COO<T>& coo);
+
+template<typename T>
+void print(const CSR<T>& mat);
+
+} // namespace spECKWrapper

@@ -23,6 +23,7 @@
 #include "spECKConfig.h"
 
 using IndexType = uint32_t;
+using namespace spECKWrapper;
 
 namespace spECK
 {
@@ -49,11 +50,8 @@ float recordTimerVar(cudaEvent_t &start, cudaEvent_t &end, CUstream stream = 0)
 }
 
 template <typename DataType, int BLOCKS_PER_SM, int THREADS_PER_BLOCK, int MAX_DYNAMIC_SHARED, int MAX_STATIC_SHARED>
-void MultiplyspECKImplementation(const dCSR<DataType> &matA_Dealloc, const dCSR<DataType> &matB_Dealloc, dCSR<DataType> &matOut, spECKConfig &config, Timings &timings)
+void MultiplyspECKImplementation(dCSRNoDealloc<DataType> &matA, dCSRNoDealloc<DataType> &matB, dCSR<DataType> &matOut, spECKConfig &config, Timings &timings)
 {
-    // those matrices automatically deallocate memory when used as param for cuda -> therefore i have written a new struct without deallocs
-    dCSRNoDealloc<DataType> matA(matA_Dealloc), matB(matB_Dealloc);
-
     if (matB.cols > 1 << 27)
     {
         printf("ERROR: matrix B has more than %d columns (%lu)\n", 1 << 27, matB.cols);
@@ -594,7 +592,7 @@ void MultiplyspECKImplementation(const dCSR<DataType> &matA_Dealloc, const dCSR<
     if (matOut.data == nullptr || matOut.col_ids == nullptr)
     {
         if (matOut.nnz > 0)
-            printf("ERROR: out of memory\n");
+            printf("ERROR: out of memory, out nnz: %d, matC.rows: %d, matC.cols: %d, matC.nnz: %d \n", matOut.nnz, matC.rows, matC.cols, matC.nnz);
         return;
     }
 
@@ -1122,11 +1120,35 @@ void MultiplyspECKImplementation(const dCSR<DataType> &matA_Dealloc, const dCSR<
 }
 
 template <typename DataType, int BLOCKS_PER_SM, int THREADS_PER_BLOCK, int MAX_DYNAMIC_SHARED, int MAX_STATIC_SHARED>
-void MultiplyspECK(const dCSR<DataType> &A, const dCSR<DataType> &B, dCSR<DataType> &matOut, spECKConfig &config, Timings &timings)
+void MultiplyspECK(unsigned int* A_row_offsets, unsigned int* A_col_ids, DataType* A_data,
+                    int A_rows, int A_cols, int A_nnz,  
+                    unsigned int* B_row_offsets, unsigned int* B_col_ids, DataType* B_data,
+                    int B_rows, int B_cols, int B_nnz,  
+                    dCSR<DataType> &matOut, spECKConfig &config, Timings &timings)
 {
-	MultiplyspECKImplementation<DataType, BLOCKS_PER_SM, THREADS_PER_BLOCK, MAX_DYNAMIC_SHARED, MAX_STATIC_SHARED>(A, B, matOut, config, timings);
+    dCSRNoDealloc<DataType> matA(A_rows, A_cols, A_nnz, A_row_offsets, A_col_ids, A_data);
+    dCSRNoDealloc<DataType> matB(B_rows, B_cols, B_nnz, B_row_offsets, B_col_ids, B_data);
+    MultiplyspECKImplementation<DataType, BLOCKS_PER_SM, THREADS_PER_BLOCK, MAX_DYNAMIC_SHARED, MAX_STATIC_SHARED>(matA, matB, matOut, config, timings);
+}
+
+template <typename DataType, int BLOCKS_PER_SM, int THREADS_PER_BLOCK, int MAX_DYNAMIC_SHARED, int MAX_STATIC_SHARED>
+void MultiplyspECK(const dCSR<DataType> &matA_Dealloc, const dCSR<DataType> &matB_Dealloc, dCSR<DataType> &matOut, spECKConfig &config, Timings &timings)
+{
+    // those matrices automatically deallocate memory when used as param for cuda -> therefore i have written a new struct without deallocs
+    dCSRNoDealloc<DataType> matA(matA_Dealloc), matB(matB_Dealloc);
+    MultiplyspECKImplementation<DataType, BLOCKS_PER_SM, THREADS_PER_BLOCK, MAX_DYNAMIC_SHARED, MAX_STATIC_SHARED>(matA, matB, matOut, config, timings);
 }
 
 template void MultiplyspECK<float, 4, 1024, spECK_DYNAMIC_MEM_PER_BLOCK, spECK_STATIC_MEM_PER_BLOCK>(const dCSR<float> &A, const dCSR<float> &B, dCSR<float> &matOut, spECKConfig &config, Timings &timings);
 template void MultiplyspECK<double, 4, 1024, spECK_DYNAMIC_MEM_PER_BLOCK, spECK_STATIC_MEM_PER_BLOCK>(const dCSR<double> &A, const dCSR<double> &B, dCSR<double> &matOut, spECKConfig &config, Timings &timings);
+
+template void MultiplyspECK<float, 4, 1024, spECK_DYNAMIC_MEM_PER_BLOCK, spECK_STATIC_MEM_PER_BLOCK>(
+                            unsigned int* A_row_offsets, unsigned int* A_col_ids, float* A_data, int A_rows, int A_cols, int A_nnz,  
+                            unsigned int * B_row_offsets, unsigned int* B_col_ids, float* B_data, int B_rows, int B_cols, int B_nnz,  
+                            spECKWrapper::dCSR<float> &matOut, spECKConfig &config, Timings &timings);
+
+template void MultiplyspECK<double, 4, 1024, spECK_DYNAMIC_MEM_PER_BLOCK, spECK_STATIC_MEM_PER_BLOCK>(
+                            unsigned int* A_row_offsets, unsigned int* A_col_ids, double* A_data, int A_rows, int A_cols, int A_nnz,  
+                            unsigned int * B_row_offsets, unsigned int* B_col_ids, double* B_data, int B_rows, int B_cols, int B_nnz,  
+                            spECKWrapper::dCSR<double> &matOut, spECKConfig &config, Timings &timings);
 } // namespace spECK

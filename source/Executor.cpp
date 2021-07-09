@@ -18,20 +18,27 @@ int Executor<ValueType>::run()
 	auto& matrices = data.matrices;
 	std::cout << "Matrix: " << matrices.cpuA.rows << "x" << matrices.cpuA.cols << ": " << matrices.cpuA.nnz << " nonzeros\n";
 
+	// std::cout<< "\n A \n";
+	// print(matrices.cpuA);
+
+	// std::cout<< "\n B \n";
+	// print(matrices.cpuB);
+
+	CSR<float> res;
+
 	dCSR<ValueType> dCsrHiRes, dCsrReference;
 	Timings timings, warmupTimings, benchTimings;
 	bool measureAll = Config::getBool(Config::TrackIndividualTimes, false);
 	bool measureCompleteTimes = Config::getBool(Config::TrackCompleteTimes, true);
 	auto config = spECK::spECKConfig::initialize(0);
 
-	bool compareData = false;
+	bool compareData = true;
 
-	if(Config::getBool(Config::CompareResult))
+	if(Config::getBool(Config::CompareResult) || true)
 	{
 		unsigned cuSubdiv_nnz = 0;
 		cuSPARSE::CuSparseTest<ValueType> cusparse;
 		cusparse.Multiply(matrices.gpuA, matrices.gpuB, dCsrReference, cuSubdiv_nnz);
-
 		if(!compareData)
 		{
 			cudaFree(dCsrReference.data);
@@ -47,10 +54,13 @@ int Executor<ValueType>::run()
 		timings.measureCompleteTime = measureCompleteTimes;
 		spECK::MultiplyspECK<ValueType, 4, 1024, spECK_DYNAMIC_MEM_PER_BLOCK, spECK_STATIC_MEM_PER_BLOCK>(matrices.gpuA, matrices.gpuB, dCsrHiRes, config, timings);
 		warmupTimings += timings;
+		convert(res, dCsrHiRes);
+		std::cout<< "\n res \n";
+		// print(res);
 
-		if (dCsrHiRes.data != nullptr && dCsrHiRes.col_ids != nullptr && Config::getBool(Config::CompareResult))
+		if (dCsrHiRes.data != nullptr && dCsrHiRes.col_ids != nullptr)
 		{
-			if (!spECK::Compare(dCsrReference, dCsrHiRes, false))
+			if (!spECK::Compare(dCsrReference, dCsrHiRes, true))
 				printf("Error: Matrix incorrect\n");
 		}
 	}
@@ -64,9 +74,9 @@ int Executor<ValueType>::run()
 		spECK::MultiplyspECK<ValueType, 4, 1024, spECK_DYNAMIC_MEM_PER_BLOCK, spECK_STATIC_MEM_PER_BLOCK>(matrices.gpuA, matrices.gpuB, dCsrHiRes, config, timings);
 		benchTimings += timings;
 
-		if (dCsrHiRes.data != nullptr && dCsrHiRes.col_ids != nullptr && Config::getBool(Config::CompareResult))
+		if (dCsrHiRes.data != nullptr && dCsrHiRes.col_ids != nullptr)
 		{
-			if (!spECK::Compare(dCsrReference, dCsrHiRes, false))
+			if (!spECK::Compare(dCsrReference, dCsrHiRes, true))
 				printf("Error: Matrix incorrect\n");
 		}
 	}
@@ -81,4 +91,4 @@ int Executor<ValueType>::run()
 }
 
  // template int Executor<float>::run();
-template int Executor<double>::run();
+template int Executor<float>::run();

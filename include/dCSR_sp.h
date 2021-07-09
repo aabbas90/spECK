@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <algorithm>
 
+namespace spECKWrapper {
 template<typename T>
 struct CSR;
 
@@ -14,6 +15,7 @@ struct dCSR
 	T* data;
 	unsigned int* row_offsets;
 	unsigned int* col_ids;
+	bool do_dealloc = true;
 
 	dCSR() : rows(0), cols(0), nnz(0), data(nullptr), row_offsets(nullptr), col_ids(nullptr) { }
 	void alloc(size_t rows, size_t cols, size_t nnz, bool allocOffsets = true);
@@ -31,6 +33,8 @@ struct dCSRNoDealloc
 	unsigned int* col_ids;
 
 	dCSRNoDealloc(const dCSR<T>& a) : rows(a.rows), cols(a.cols), data(a.data), nnz(a.nnz), row_offsets(a.row_offsets), col_ids(a.col_ids) {}
+	dCSRNoDealloc(const size_t rows, const size_t cols, const size_t nnz, 
+				unsigned int* row_offsets, unsigned int* col_ids, T* data) : rows(rows), cols(cols), data(data), nnz(nnz), row_offsets(row_offsets), col_ids(col_ids) {}
 	dCSRNoDealloc() = default;
 };
 
@@ -45,3 +49,5 @@ void convert(CSR<T>& csr, const dCSR<T>& dcsr, unsigned int padding = 0);
 
 template<typename T>
 void convert(CSR<T>& csr, const CSR<T>& dcsr, unsigned int padding = 0);
+
+} // namespace spECKWrapper

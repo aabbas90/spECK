@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cuda_runtime.h>
-#include "dCSR.h"
+#include "dCSR_sp.h"
 #include "GPU/spECKKernels.h"
 #include "HelperFunctions.cuh"
 #include "Config.h"

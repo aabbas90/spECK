@@ -23,53 +23,25 @@ template class DataLoader<double>;
 template <typename ValueType>
 DataLoader<ValueType>::DataLoader(std::string path) : matrices()
 {
-	std::string csrPath = path + typeExtension<ValueType>() + ".hicsr";
+	std::string csrPath_A = "../../A_big.hicsr"; 
+	std::string csrPath_B = "../../B_big.hicsr";
 
 	try
 	{
-		std::cout << "trying to load csr file \"" << csrPath << "\"\n";
-		matrices.cpuA = loadCSR<ValueType>(csrPath.c_str());
-		std::cout << "successfully loaded: \"" << csrPath << "\"\n";
+		std::cout << "trying to load csr file \"" << csrPath_A << "\"\n";
+		matrices.cpuA = loadCSR<ValueType>(csrPath_A.c_str());
+		std::cout << "successfully loaded: \"" << csrPath_A << "\"\n";
+
+		std::cout << "trying to load csr file \"" << csrPath_B << "\"\n";
+		matrices.cpuB = loadCSR<ValueType>(csrPath_B.c_str());
+		std::cout << "successfully loaded: \"" << csrPath_B << "\"\n";
+
 	}
 	catch (std::exception& ex)
 	{
 		std::cout << "could not load csr file:\n\t" << ex.what() << "\n";
-		try
-		{
-			std::cout << "trying to load mtx file \"" << path << "\"\n";
-			COO<ValueType> cooMat = loadMTX<ValueType>(path.c_str());
-			convert(matrices.cpuA, cooMat);
-			std::cout << "successfully loaded and converted: \"" << csrPath << "\"\n";
-		}
-		catch (std::exception& ex)
-		{
-			std::cout << ex.what() << std::endl;
-			std::cout << "could not load mtx file: \"" << path << "\"\n";
-			throw "could not load mtx file";
-		}
-		try
-		{
-			std::cout << "write csr file for future use\n";
-			storeCSR(matrices.cpuA, csrPath.c_str());
-		}
-		catch (std::exception& ex)
-		{
-			std::cout << ex.what() << std::endl;
-		}
 	}
 	
 	convert(matrices.gpuA, matrices.cpuA, 0);
-	cuSPARSE::CuSparseTest<ValueType> cuSparse;
-	
-	//calculate the transpose if matrix is not square
-	if (matrices.gpuA.rows != matrices.gpuA.cols)
-	{
-		cuSparse.Transpose(matrices.gpuA, matrices.gpuB);
-		convert(matrices.cpuB, matrices.gpuB);
-	}
-	else
-	{
-		convert(matrices.gpuB, matrices.cpuA, 0);
-		convert(matrices.cpuB, matrices.cpuA, 0);
-	}
+	convert(matrices.gpuB, matrices.cpuB, 0);
 }

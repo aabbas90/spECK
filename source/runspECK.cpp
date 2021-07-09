@@ -28,5 +28,5 @@ int main(int argc, char *argv[])
 	// if (value_type == "f")
 	//  	return Executor<float>(argc, argv).run();
 	// else
-	return Executor<double>(argc, argv).run();
+	return Executor<float>(argc, argv).run();
 }

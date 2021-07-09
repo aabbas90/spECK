@@ -2,6 +2,7 @@
 
 #include <memory>
 
+namespace spECKWrapper {
 template<typename T>
 struct DenseVector
 {
@@ -15,3 +16,4 @@ struct DenseVector
 		size = s;
 	}
 };
+} //namespace spECKWrapper

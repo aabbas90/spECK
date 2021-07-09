@@ -2,8 +2,9 @@
 
 #include <string>
 #include "CSR.h"
-#include "dCSR.h"
+#include "dCSR_sp.h"
 
+using namespace spECKWrapper;
 
 template<typename ValueType>
 struct Matrices

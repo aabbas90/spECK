@@ -47,7 +47,7 @@ namespace {
 		}
 
 		template<typename T>
-		CSRIOHeader(const CSR<T>& mat)
+		CSRIOHeader(const spECKWrapper::CSR<T>& mat)
 		{
 			for (size_t i = 0; i < sizeof(Magic); ++i)
 				magic[i] = Magic[i];
@@ -73,6 +73,7 @@ namespace {
 	constexpr char CSRIOHeader::Magic[];
 }
 
+namespace spECKWrapper {
 template<typename T>
 void CSR<T>::alloc(size_t r, size_t c, size_t n)
 {
@@ -211,6 +212,15 @@ void convert(CSR<T>& res, const COO<T>& coo)
 	res.row_offsets[coo.rows] = off;
 }
 
+template<typename T>
+void print(const CSR<T>& mat)
+{
+    std::cout << "dimension = " << mat.rows << "," << mat.cols << "\n";
+    for(size_t i=0; i<mat.rows; ++i)
+        for(size_t l=mat.row_offsets[i]; l<mat.row_offsets[i+1]; ++l)
+            std::cout << i << ", " << mat.col_ids[l] << ", " << mat.data[l] << "\n"; 
+}
+
 template void CSR<float>::alloc(size_t, size_t, size_t);
 template void CSR<double>::alloc(size_t, size_t, size_t);
 
@@ -226,3 +236,7 @@ template void spmv(DenseVector<double>& res, const CSR<double>& m, const DenseVe
 
 template void convert(CSR<float>& res, const COO<float>& coo);
 template void convert(CSR<double>& res, const COO<double>& coo);
+
+template void print(const CSR<float>& mat);
+
+} // namespace spECKWrapper

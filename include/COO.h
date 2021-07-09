@@ -4,7 +4,7 @@
 
 #include <memory>
 
-
+namespace spECKWrapper {
 template<typename T>
 struct COO
 {
@@ -27,3 +27,4 @@ void storeCOO(const COO<T>& mat, const char* file);
 
 template<typename T>
 void spmv(DenseVector<T>& res, const COO<T>& m, const DenseVector<T>& v, bool transpose = false);
+} // namespace spECKWrapper
